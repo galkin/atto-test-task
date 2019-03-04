@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+
+  <!-- Bootstrap CSS -->
+  <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+
+  <title>Atto Test Task</title>
+</head>
+<body>
+<div class="container">
+  <div class="row" id="currencies">
+  </div>
+  <div class="row" id="state">
+  </div>
+</div>
+<script src="//unpkg.com/react@16.7.0/umd/react.production.min.js"></script>
+<script src="//unpkg.com/react-dom@16.7.0/umd/react-dom.production.min.js"></script>
+<script src="//unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+<script src="//unpkg.com/eventsource@1.0.7/example/eventsource-polyfill.js"></script>
+
+<script type="text/babel">
+  function formatDate(date) {
+    return date.toLocaleString("ru", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+  }
+
+  const currencyFormater = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  });
+
+  const source = new EventSourcePolyfill('/currencies/');
+
+  const CurrencyList = ({data}) => {
+    const rows = data.map(cur => (
+      <tr>
+        <th scope="row">{cur.rank}</th>
+        <td>{cur.name}</td>
+        <td>{currencyFormater.format(cur.priceUsd)}</td>
+      </tr>)
+    );
+
+    return (
+      <table className="table">
+        <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Currency</th>
+          <th scope="col">Price</th>
+        </tr>
+        </thead>
+        {rows}
+      </table>
+    )
+  };
+
+  source.addEventListener('message', function (m) {
+    ReactDOM.render(
+      <CurrencyList data={JSON.parse(m.data)}/>,
+      document.getElementById('currencies')
+    );
+  });
+
+  source.addEventListener('message', function (m) {
+    ReactDOM.render(
+      <div className="alert alert-success" role="alert">
+        Last update at <span className="badge btn-primary">{formatDate(new Date())}</span>
+      </div>,
+      document.getElementById('state')
+    );
+  });
+
+  source.addEventListener('error', function (error) {
+    if (source.readyState === EventSource.CONNECTING) {
+      ReactDOM.render(
+        <div className="alert warning" role="alert">
+          The connection is broken, reconnect ...
+        </div>,
+        document.getElementById('state')
+      );
+    } else {
+      ReactDOM.render(
+        <div className="alert danger" role="alert">
+          Error, SSE state is {source.readyState}
+        </div>,
+        document.getElementById('state')
+      );
+    }
+
+  });
+
+
+</script>
+
+</body>
+</html>

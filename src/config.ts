@@ -11,6 +11,9 @@ load({
 
 export default {
   logLevel: process.env.LOG_LEVEL! as LogLevelString,
+  http: {
+    port: parseInt(process.env.HTTP_PORT!, 10)
+  },
   scrapping: {
     interval: parseInt(process.env.SCRAPPING_INTERVAL!, 10),
     assetsCount: parseInt(process.env.SCRAPPING_ASSETS_COUNT_INTERVAL!, 10)

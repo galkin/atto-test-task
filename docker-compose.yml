@@ -1,0 +1,16 @@
+version: '3'
+services:
+  api:
+    container_name: atto-test-task
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+      SHUTDOWN_TIMEOUT: 1000
+      HTTP_PORT: 8443
+      SCRAPPING_INTERVAL: 1000
+      SCRAPPING_ASSETS_COUNT_INTERVAL: 5
+    ports:
+      - '8443:8443'

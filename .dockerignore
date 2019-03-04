@@ -1,0 +1,7 @@
+build
+docs
+node_modules
+.env.test
+docker-compose.yml
+README.md
+tslint.json

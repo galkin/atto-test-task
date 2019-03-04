@@ -1,3 +1,5 @@
+import { PassThrough, Readable } from 'stream';
+
 import config from '~/config';
 import logger from '~/logger';
 
@@ -8,13 +10,21 @@ let intervalId: NodeJS.Timeout;
 let currentAssetValues: Asset[] = [];
 let currentAssetValuesStr: string = '[]';
 
-export function start (): void {
+class AssetsStream extends Readable {
+  // tslint:disable-next-line
+  _read () { }
+}
+
+let assetsStreamSSE = new AssetsStream();
+
+export async function start () {
   if (intervalId) throw new Error('Scrapper is already running');
+  await updateValue();
   logger.info('Data scraper started');
   intervalId = setInterval(updateValue, config.scrapping.interval);
 }
 
-export function stop (): void {
+export async function stop () {
   if (!intervalId) throw new Error('Scrapper is not running');
   logger.info('Data scraper stopped');
   clearInterval(intervalId);
@@ -27,7 +37,10 @@ async function updateValue (): Promise<void> {
     if (currentAssetValuesStr !== newAssetValuesStr) {
       currentAssetValues = newAssetValues;
       currentAssetValuesStr = newAssetValuesStr;
-      logger.debug({ values: currentAssetValues }, 'Scrapper received new values');
+      logger.trace({ values: currentAssetValues }, 'Scrapper received new values');
+      assetsStreamSSE.push(`data: ${currentAssetValuesStr}\n\n`);
+    } else {
+      logger.trace('Scrapper received known values');
     }
   } catch (error) {
     logger.warn({ error }, 'Error during scrapping');
@@ -36,4 +49,12 @@ async function updateValue (): Promise<void> {
 
 export function getCurrentAssets (): Asset[] {
   return currentAssetValues;
+}
+
+export function getAssetsStreamSSE (withCurrent: boolean = true): Readable {
+  const resultStream = new PassThrough();
+  if (withCurrent) resultStream.push(`data: ${currentAssetValuesStr}\n\n`);
+  assetsStreamSSE.pipe(resultStream);
+
+  return resultStream;
 }
