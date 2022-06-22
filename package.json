@@ -19,7 +19,7 @@
     "bunyan": "^1.8.12",
     "class-transformer": "^0.2.0",
     "dotenv-safe": "^6.1.0",
-    "got": "^9.6.0",
+    "got": "^11.8.5",
     "koa": "^2.7.0",
     "koa-router": "^7.4.0",
     "reflect-metadata": "^0.1.13"
