@@ -34,7 +34,7 @@
     "@types/node": "^11.9.5",
     "nodemon": "^1.18.10",
     "ts-node": "^8.0.2",
-    "tsconfig-paths": "^3.8.0",
+    "tsconfig-paths": "^3.10.1",
     "tslint": "^5.12.1",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.3.3333"
